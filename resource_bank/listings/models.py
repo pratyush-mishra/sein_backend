@@ -12,6 +12,7 @@ class Listing(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     image = models.ImageField(upload_to='listings/images/', blank=True, null=True)
+    contact_details = models.TextField(blank=True, null=True, help_text='Collection times, location and other contact details for this listing.')
     is_approved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
