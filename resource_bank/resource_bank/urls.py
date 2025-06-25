@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from listings.views import ListingViewSet, MessageViewSet
+from listings.views import ListingViewSet, MessageViewSet, moderate_listing
 # Import user views
 
 router = DefaultRouter()
@@ -28,6 +28,7 @@ router.register(r'messages', MessageViewSet, basename='message')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('moderate/<str:token>/', moderate_listing, name='moderate_listing'),
     # Djoser authentication endpoints
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),

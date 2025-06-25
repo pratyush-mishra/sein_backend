@@ -61,7 +61,9 @@ ROOT_URLCONF = 'resource_bank.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -164,3 +166,5 @@ DJOSER = {
         'current_user': 'users.serializers.MemberSerializer',
     },
 }
+
+ADMINS = [('SEIN Admin', 'seinadmin@example.com')]
