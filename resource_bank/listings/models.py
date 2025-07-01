@@ -40,4 +40,4 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'Message from {self.sender} to {self.recipient} on {self.created_at}'
+        return f'Message from {self.sender} to {self.recipient} on {self.timestamp}'

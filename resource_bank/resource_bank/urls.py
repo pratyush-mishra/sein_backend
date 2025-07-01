@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from listings.views import ListingViewSet, MessageViewSet, moderate_listing
-# Import user views
+
 
 router = DefaultRouter()
 router.register(r'listings', ListingViewSet, basename='listing')
