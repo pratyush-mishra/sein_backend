@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from listings.views import ListingViewSet, MessageViewSet, moderate_listing
-
+from users.views import UserDetail
 
 router = DefaultRouter()
 router.register(r'listings', ListingViewSet, basename='listing')
@@ -32,4 +32,6 @@ urlpatterns = [
     # Djoser authentication endpoints
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
+    path('users/<int:pk>/', UserDetail.as_view(), name='user-detail'),
+    path('users/me/', UserDetail.as_view(), {'pk': 'me'}, name='my-profile'),
 ]
