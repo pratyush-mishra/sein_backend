@@ -15,6 +15,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.conf.urls.static import static
+from django.conf import settings
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from listings.views import ListingViewSet, MessageViewSet, moderate_listing
@@ -31,5 +33,11 @@ urlpatterns = [
     path('moderate/<str:token>/', moderate_listing, name='moderate_listing'),
     # Djoser authentication endpoints
     path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken')),
+    path('auth/jwt/create/', CustomTokenObtainPairView.as_view(), name='jwt_create'),
+    path('auth/jwt/destroy/', CustomTokenDestroyView.as_view(), name='jwt_destroy'),
 ]
+
+from users.views import CustomTokenObtainPairView, CustomTokenDestroyView
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

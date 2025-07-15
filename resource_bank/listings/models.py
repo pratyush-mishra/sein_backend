@@ -8,10 +8,28 @@ class Listing(models.Model):
         on_delete=models.CASCADE,
         related_name='listings'
     )
-
+    LISTING_CATEGORIES = (
+        ('office_material', 'Office Material'),
+        ('gardening_supplies', 'Gardening Supplies'),
+        ('physical_space', 'Physical Space'),
+        ('tools', 'Tools'),
+        ('other', 'Other'),
+    )
+    
     title = models.CharField(max_length=200)
     description = models.TextField()
-    image = models.ImageField(upload_to='listings/images/', blank=True, null=True)
+    category = models.CharField(
+        max_length=50,
+        choices=LISTING_CATEGORIES,
+        default='other'
+    )
+    qty = models.PositiveSmallIntegerField(null=True, blank=True)
+    is_fee = models.BooleanField(default=False)
+    fee = models.IntegerField(blank=True, null=True)
+    dimensions = models.TextField(blank=True, null=True)
+    availability = models.TextField(blank=True, null=True)
+    condition = models.TextField(blank=True, null=True)
+    comment = models.TextField(blank=True, null=True)
     contact_details = models.TextField(blank=True, null=True, help_text='Collection times, location and other contact details for this listing.')
     is_approved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -41,3 +59,7 @@ class Message(models.Model):
 
     def __str__(self):
         return f'Message from {self.sender} to {self.recipient} on {self.timestamp}'
+
+class ListingImage(models.Model):
+    listing = models.ForeignKey(Listing, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='listings/images/')

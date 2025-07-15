@@ -2,11 +2,12 @@ from django.shortcuts import render
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Listing, Message
-from .serializers import ListingSerializer, MessageSerializer
+from .models import Listing, Message, ListingImage
+from .serializers import ListingSerializer, MessageSerializer, ListingImageSerializer
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q
+from rest_framework import filters
 
 # for email moderation
 from django.shortcuts import render
@@ -20,21 +21,64 @@ from datetime import timedelta
 class ListingViewSet(viewsets.ModelViewSet):
     serializer_class = ListingSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'description']
 
     def get_queryset(self):
         """
         GET all listings if the user is authenticated, otherwise return only approved listings.
         """
-        if self.request.user.is_authenticated:
-            return Listing.objects.all()
-        else:
-            return Listing.objects.filter(is_approved=True)
+        queryset = Listing.objects.all() if self.request.user.is_authenticated else Listing.objects.filter(is_approved=True)
+        category = self.request.query_params.get('category', None)
+        if category:
+            queryset = queryset.filter(category=category)
+        return queryset
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        # Handle image uploads
+        images_data = request.FILES.getlist('images')
+        for image_data in images_data:
+            ListingImage.objects.create(listing=serializer.instance, image=image_data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         
     def perform_create(self, serializer):
         """
         CREATE a new listing and associate it with the authenticated user.
         """
         serializer.save(owner=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        # Handle image additions
+        images_data = request.FILES.getlist('images')
+        for image_data in images_data:
+            ListingImage.objects.create(listing=instance, image=image_data)
+
+        # Handle image deletions
+        images_to_delete_ids = request.data.get('images_to_delete')
+        if images_to_delete_ids:
+            if not isinstance(images_to_delete_ids, list):
+                images_to_delete_ids = [images_to_delete_ids]
+            ListingImage.objects.filter(id__in=images_to_delete_ids, listing=instance).delete()
+
+        # Re-serialize the instance to reflect changes in images
+        response_serializer = self.get_serializer(instance)
+        return Response(response_serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def categories(self, request):
+        return Response(Listing.LISTING_CATEGORIES)
     
 class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
