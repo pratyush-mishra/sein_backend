@@ -19,7 +19,7 @@ def notify_admin_on_new_listing(sender, instance, created, **kwargs):
 
         # Replace with your actual domain
         # In a real application, you would use settings to get the domain
-        domain = '127.0.1:8000'
+        domain = 'localhost:8000' #TODO
 
         # build the approval and rejection URLs
         approve_url = domain + reverse('moderate_listing', kwargs={'token': approve_token})
@@ -33,6 +33,6 @@ def notify_admin_on_new_listing(sender, instance, created, **kwargs):
             'reject_url': reject_url,
         }
 
-        message = render_to_string('emails/moderation_email.txt', context)
+        message = render_to_string('email/moderation_email.html', context)
 
         mail_admins(subject, message, fail_silently=False, html_message=message)

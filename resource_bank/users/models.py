@@ -61,6 +61,7 @@ class Member(AbstractUser):
     bio = models.TextField(blank=True, null=True, help_text=_('A short information of your org.'))
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
     contact_details = models.TextField(blank=True, null=True, help_text=_('Contact details for your org.'))
+    is_approved = models.BooleanField(default=False, help_text=_('Designates whether this user has been approved by an admin.'))
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

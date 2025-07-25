@@ -1,0 +1,11 @@
+<!-- templates/emails/moderation_email.txt -->
+<div style="font-family: Arial, sans-serif; font-size: 18px; color: #222;">
+  <p style="font-size: 20px; font-weight: bold; margin-bottom: 16px;">A new listing has been submitted and requires your approval.</p>
+  <p><strong>Listing Title:</strong> {{ listing.title }}<br/>
+  <strong>Submitted By:</strong> {{ listing.owner.username }}<br/>
+  <strong>Description:</strong> {{ listing.description }}</p>
+  <p style="margin-bottom: 16px;">Please review the details and take an action:</p>
+  <a href="{{ approve_url }}" style="display:inline-block;padding:16px 32px;margin-right:16px;background-color:#22c55e;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:20px;">Approve Listing</a>
+  <a href="{{ reject_url }}" style="display:inline-block;padding:16px 32px;background-color:#ef4444;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:20px;">Reject Listing</a>
+  <p style="margin-top: 32px; font-size: 16px;">Thank you.</p>
+</div>

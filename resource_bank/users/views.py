@@ -1,38 +1,42 @@
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.response import Response
-from rest_framework import status
 from djoser.views import TokenDestroyView
+from django.core import signing
+from django.urls import reverse
+from django.http import HttpResponse, Http404
+from django.core.mail import send_mail
+from django.conf import settings
+from .models import Member
+from datetime import timedelta
 
-class CustomTokenObtainPairView(TokenObtainPairView):
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        if response.status_code == status.HTTP_200_OK:
-            access_token = response.data["access"]
-            refresh_token = response.data["refresh"]
-            response.set_cookie(
-                key='access_token',
-                value=access_token,
-                httponly=True,
-                secure=True,  # Use True in production with HTTPS
-                samesite='Lax',
-                max_age=3600 # Example: 1 hour
-            )
-            response.set_cookie(
-                key='refresh_token',
-                value=refresh_token,
-                httponly=True,
-                secure=True,  # Use True in production with HTTPS
-                samesite='Lax',
-                max_age=86400 * 7 # Example: 7 days
-            )
-            # Remove tokens from the response body if you only want them in cookies
-            del response.data['access']
-            del response.data['refresh']
-        return response
-
-class CustomTokenDestroyView(TokenDestroyView):
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        response.delete_cookie('access_token')
-        response.delete_cookie('refresh_token')
-        return response
+def moderate_user(request, token):
+    signer = signing.TimestampSigner()
+    try:
+        data = signer.unsign(token, max_age=timedelta(days=30))
+        action, user_id = data.split(':')
+        user = Member.objects.get(id=user_id)
+    except (signing.BadSignature, signing.SignatureExpired, Member.DoesNotExist):
+        raise Http404("moderation link is invalid or expired.")
+    if action == 'approve_user':
+        user.is_approved = True
+        user.save()
+        send_mail(
+            'Your account has been approved',
+            f'Hi {user.username},\n\nYour account has been approved and you can now use all features on SEIN.',
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+        return HttpResponse(f'User approved successfully: {user.username}. This window can now be closed.')
+    elif action == 'reject_user':
+        username = user.username
+        email = user.email
+        user.delete()
+        send_mail(
+            'Update on your registration',
+            f'Hi {username},\n\nThank you for your registration. Unfortunately your account has been rejected.',
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+            fail_silently=False,
+        )
+        return HttpResponse(f'User "{username}" has been rejected and deleted. This window can now be closed.')
+    else:
+        return HttpResponse("Invalid action specified in the moderation link.")

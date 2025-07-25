@@ -9,10 +9,15 @@ class Listing(models.Model):
         related_name='listings'
     )
     LISTING_CATEGORIES = (
-        ('office_material', 'Office Material'),
-        ('gardening_supplies', 'Gardening Supplies'),
+        ('office_material', 'Office Equipment'),
+        ('outdoors', 'Outdoors'),
         ('physical_space', 'Physical Space'),
-        ('tools', 'Tools'),
+        ('filming_equipment', 'Filming Equipment'),
+        ('event_equipments', 'Event Equipment'),
+        ('kids', 'Kids'),
+        ('sports_and_games', 'Sports and Games'),
+        ('kitchen_cooking', 'Kitchen / Cooking'),
+        ('art_equipment', 'Art Equipment'),
         ('other', 'Other'),
     )
     

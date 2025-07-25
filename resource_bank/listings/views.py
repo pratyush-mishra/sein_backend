@@ -35,6 +35,8 @@ class ListingViewSet(viewsets.ModelViewSet):
         return queryset
 
     def create(self, request, *args, **kwargs):
+        if not request.user.is_authenticated or not getattr(request.user, 'is_approved', False):
+            return Response({'detail': 'Your account is not approved yet.'}, status=status.HTTP_403_FORBIDDEN)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -54,7 +56,7 @@ class ListingViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
+        partial = kwargs.pop('partial', False) #True for PUT, False for PATCH
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
@@ -94,6 +96,9 @@ class MessageViewSet(viewsets.ModelViewSet):
         """
         CREATE a new message and associate it with the authenticated user.
         """
+        if not getattr(self.request.user, 'is_approved', False):
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Your account is not approved yet.')
         serializer.save(sender=self.request.user)
 
 # new view for handling one-click moderation from email

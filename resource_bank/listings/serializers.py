@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Listing, Message, ListingImage
 from users.serializers import MemberSerializer
+from django.contrib.auth import get_user_model
+
 
 class ListingImageSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
@@ -30,7 +32,11 @@ class ListingSerializer(serializers.ModelSerializer):
 
 class MessageSerializer(serializers.ModelSerializer):
     sender = MemberSerializer(read_only=True)
-    recipient = MemberSerializer(read_only=True)
+    User = get_user_model()
+    recipient = MemberSerializer(read_only=True)  # For output
+    recipient_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), write_only=True, source='recipient'
+    )
     listing = ListingSerializer(read_only=True)
     listing_id = serializers.PrimaryKeyRelatedField(
         queryset=Listing.objects.all(), source='listing', write_only=True
@@ -38,5 +44,5 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ['id', 'listing', 'listing_id', 'sender', 'recipient', 'content', 'timestamp']
+        fields = ['id', 'listing', 'listing_id', 'sender', 'recipient', 'recipient_id', 'content', 'timestamp']
         read_only_fields = ['sender', 'timestamp']
