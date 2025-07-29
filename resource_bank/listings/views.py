@@ -7,6 +7,7 @@ from .serializers import ListingSerializer, MessageSerializer, ListingImageSeria
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q
+from .permissions import IsOwnerOrReadOnly
 from rest_framework import filters
 
 # for email moderation
@@ -20,7 +21,7 @@ from datetime import timedelta
 
 class ListingViewSet(viewsets.ModelViewSet):
     serializer_class = ListingSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'description']
 
