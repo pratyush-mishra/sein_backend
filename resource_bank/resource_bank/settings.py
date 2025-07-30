@@ -167,9 +167,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "admin@seinglasgow.org.uk"
-EMAIL_HOST_PASSWORD = 'mxtx ysks cpef fyvd'
-DEFAULT_FROM_EMAIL = 'resourcehub-noreply@seinglasgow.org.uk'
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 
 # Django Rest Framework Configuration
 REST_FRAMEWORK = {
@@ -190,8 +190,6 @@ DJOSER = {
     'SEND_CONFIRMATION_EMAIL': False,
     'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': '#/activate/{uid}/{token}',
-    'EMAIL_FRONTEND_DOMAIN': 'localhost:3001',
-    'EMAIL_FRONTEND_SITE_NAME': 'SEIN Resource Hub',
     'SERIALIZERS': {
         'user_create': 'users.serializers.UserCreateSerializer',
         'user': 'users.serializers.MemberSerializer',
@@ -248,7 +246,8 @@ SIMPLE_JWT = {
 }
 
 # Admin configuration
-ADMINS = [('SEIN Admin', 'pratyush.mishra99@gmail.com')]
+admins_raw = os.getenv("ADMINS", "")
+ADMINS = [tuple(admin.split(",")) for admin in admins_raw.split(";") if admin]
 EMAIL_SUBJECT_PREFIX = '[SEIN Resource Hub] '
 
 # Media files configuration
