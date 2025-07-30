@@ -19,8 +19,8 @@ def moderate_user(request, token):
         user.is_approved = True
         user.save()
         send_mail(
-            'Your account has been approved',
-            f'Hi {user.username},\n\nYour account has been approved and you can now use all features on SEIN.',
+            'Welcome to the SEIN Resource Hub!',
+            f'Hi {user.username},\n\nWe are happy to let you know that your account on SEIN\'s Resource Hub has been approved. You are now able to add any resources that you own so that other members are able to borrow them.  You are helping to create a circular economy in SE Glasgow together!\n\nPlease be sure to make note of the terms and conditions of use for the Resource Hub.\n\nAny questions?  Email info@seinglasgow.org.uk. \n\nThanks so much, and happy sharing and borrowing!\nKindly,\nSEIN Team',
             settings.DEFAULT_FROM_EMAIL,
             [user.email],
             fail_silently=False,
