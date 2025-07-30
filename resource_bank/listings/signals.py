@@ -5,6 +5,9 @@ from django.core import signing
 from django.urls import reverse
 from .models import Listing
 from django.template.loader import render_to_string
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 @receiver(post_save, sender=Listing)
 def notify_admin_on_new_listing(sender, instance, created, **kwargs):
@@ -19,7 +22,7 @@ def notify_admin_on_new_listing(sender, instance, created, **kwargs):
 
         # Replace with your actual domain
         # In a real application, you would use settings to get the domain
-        domain = 'localhost:8000' #TODO
+        domain = os.getenv('DOMAIN') #TODO
 
         # build the approval and rejection URLs
         approve_url = domain + reverse('moderate_listing', kwargs={'token': approve_token})
